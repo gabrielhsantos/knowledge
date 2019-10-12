@@ -1,5 +1,6 @@
 const app = require('express')();
 const consign = require('consign');
+app.db = require('./config/db');
 
 consign()
   .then('./config/middlewares.js')
