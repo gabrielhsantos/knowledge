@@ -1,6 +1,8 @@
 const app = require('express')();
 const consign = require('consign');
 app.db = require('./config/db');
+app.mongoose = require('mongoose');
+require('./config/mongodb');
 
 consign({ verbose: false })
   .include('./config/passport.js')
