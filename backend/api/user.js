@@ -34,7 +34,7 @@ module.exports = app => {
     if(user.id) {
       app.db('users')
         .update(user)
-        .where({ id: user.id })
+        .where({ id: user.id, active: true })
         .then(_ => res.status(201).send())
         .catch(err => res.status(500).send(err));
     } else {
@@ -48,6 +48,7 @@ module.exports = app => {
   const get = (req, res) => {
     app.db('users')
       .select('id', 'name', 'email', 'admin', 'active')
+      .where({ active: true })
       .then(users => res.json(users))
       .catch(err => res.status(500).send(err));
   };
@@ -55,10 +56,27 @@ module.exports = app => {
   const getById = (req, res) => {
     app.db('users')
       .select('id', 'name', 'email', 'admin', 'active')
-      .where({ id: req.params.id }).first()
+      .where({ id: req.params.id, active: true }).first()
       .then(users => res.json(users))
       .catch(err => res.status(500).send(err));
   };
 
-  return { save, get, getById };
+  const remove = async (req, res) => {
+    try {
+      const articles = await app.db('articles')
+        .where({ userId: req.params.id });
+      notExistsOrError(articles, 'Usuário possui artigos.');
+
+      const rowsUpdated = await app.db('users')
+        .update({deletedAt: new Date(), active: false})
+        .where({ id: req.params.id })
+      existsOrError(rowsUpdated, 'Usuário não foi encontrado.');
+
+      res.status(200).send();
+    } catch (msg) {
+      res.status(400).send(msg);
+    };
+  };
+
+  return { save, get, getById, remove };
 };
