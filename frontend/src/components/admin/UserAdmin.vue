@@ -107,7 +107,7 @@ export default {
     }
   },
   mounted() {
-    this.loadUsers()
+    this.loadUsers();
   }
 }
 </script>
